@@ -52,7 +52,7 @@ module.exports = class LinkedList {
       this.append(value);
       return this;
     }
-    const previousNode = this.traverseToIndex(index - 1);
+    const previousNode = this.lookup(index - 1);
     const currentNode = previousNode.next;
     const newNode = new LinkedListNode(value, currentNode);
     previousNode.next = newNode;
@@ -94,7 +94,7 @@ module.exports = class LinkedList {
       return deletedTail;
     }
 
-    const previousNode = this.traverseToIndex(this.length - 2);
+    const previousNode = this.lookup(this.length - 2);
     const currentNode = previousNode.next;
     previousNode.next = null;
     this.tail = previousNode;
@@ -117,7 +117,7 @@ module.exports = class LinkedList {
       return this.deleteTail();
     }
 
-    const previousNode = this.traverseToIndex(index - 1);
+    const previousNode = this.lookup(index - 1);
     const currentNode = previousNode.next;
     const nextNode = currentNode.next;
     previousNode.next = nextNode;
@@ -126,15 +126,53 @@ module.exports = class LinkedList {
   };
 
   /* Trverse to a particular node in Linked-List.*/
-  traverseToIndex = (index) => {
+  lookup = (index) => {
     let counter = 0;
     let currentNode = this.head;
+
+    if (index < 0 || index > this.length) {
+      throw Error("index is out of bound!");
+    }
 
     while (counter !== index) {
       currentNode = currentNode.next;
       counter++;
     }
     return currentNode;
+  };
+
+  /* Find a value if present in a LinkedList*/
+  find = (value = undefined) => {
+    let currentNode = this.head;
+    while (currentNode) {
+      if (value && currentNode.value === value) {
+        return currentNode;
+      }
+      currentNode = currentNode.next;
+    }
+    return undefined;
+  };
+
+  reverse = () => {
+    if (!this.head.next || this.length === 1) {
+      return this;
+    }
+    let firstNode = this.head;
+    let secondNode = firstNode.next;
+    while (secondNode) {
+      let tempNode = secondNode.next;
+      secondNode.next = firstNode;
+      // next pair of nodes that needs to be reveresd (second & second.next).
+      firstNode = secondNode;
+      secondNode = tempNode;
+    }
+    // pointing the current head nodes next value to be null.
+    this.head.next = null;
+    // setting the current head node to be the tail node.
+    this.tail = this.head;
+    // last processed node will be the head node.
+    this.head = firstNode;
+    return this;
   };
 
   /* Converts Linked-List nodes into an array.*/
