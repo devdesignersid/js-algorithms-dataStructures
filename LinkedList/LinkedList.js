@@ -8,191 +8,270 @@ module.exports = class LinkedList {
     this.length = 0;
   }
 
-  /* Adding a node to the beginning of a Linked-List.*/
-  prepend = (value) => {
-    const newNode = new LinkedListNode(value, this.head);
-    this.head = newNode;
-    // When tail node isn't present.
-    if (!this.tail) {
-      this.tail = newNode;
-    }
-    this.length++;
-    return this;
+  // Checks if the linked list is empty.
+  isEmpty = () => {
+    if (this.head) return false;
+    return true;
   };
 
-  /* Adding a node to the end of the Linked-List.
-   */
-  append = (value) => {
+  // Adds a node to the front of the linked list.
+  prepend = (value) => {
     const newNode = new LinkedListNode(value);
-
-    // if no head is present.
-    if (!this.head) {
+    if (this.isEmpty()) {
       this.head = newNode;
       this.tail = newNode;
       this.length++;
-      return this;
+    } else {
+      const currentHead = this.head;
+      this.head = newNode;
+      this.head.next = currentHead;
+      this.length++;
     }
-
-    this.tail.next = newNode;
-    this.tail = newNode;
-    this.length++;
     return this;
   };
 
-  /* Insert a node to a particular index of Linked-List. */
-  insert = (value, index) => {
-    if (index > this.length || index < 0) {
-      throw new Error("index out of bound!");
+  // Add a node to the end of the linked list.
+  append = (value) => {
+    const newNode = new LinkedListNode(value);
+    if (this.isEmpty()) {
+      this.head = newNode;
+      this.tail = newNode;
+      this.length++;
+    } else {
+      const currentTail = this.tail;
+      currentTail.next = newNode;
+      this.tail = newNode;
+      this.length++;
     }
+    return this;
+  };
+
+  // Insert a node to the linked list.
+  insert = (value, index) => {
+    if (index === undefined)
+      throw Error("Function requires 'index' as the second argument!");
+    if (index < 0 || index > this.length) throw Error("Index is out of range!");
     if (index === 0) {
       this.prepend(value);
       return this;
     }
-    if (index === this.length) {
-      this.append(value);
-      return this;
-    }
+    const newNode = new LinkedListNode(value);
+    // getting previous node of Current Node.
     const previousNode = this.lookup(index - 1);
     const currentNode = previousNode.next;
-    const newNode = new LinkedListNode(value, currentNode);
     previousNode.next = newNode;
+    newNode.next = currentNode;
     this.length++;
-    return this;
+    if (index === this.length - 1) {
+      this.tail = newNode;
+    }
+    return newNode;
   };
 
-  /* Delete head node from the Linked-List.*/
-  deleteHead = () => {
-    if (!this.head) {
-      return null;
-    }
-    const deletedHead = this.head;
-    if (deletedHead.next) {
-      // When Linked-List is empty.
-      this.head = deletedHead.next;
-    } else {
-      // When only a single node is present in the Linked-List.
-      this.head = null;
-      this.tail = null;
-    }
-    this.length--;
-    return deletedHead;
-  };
-
-  /* Delete tail node from the Linked-List.*/
-  deleteTail = () => {
-    if (!this.tail) {
-      // When Linked-List is empty.
-      return null;
-    }
-    const deletedTail = this.tail;
-
-    if (this.head === deletedTail) {
-      // When only a single node is present in the Linked-List.
-      this.head = null;
-      this.tail = null;
-      this.length--;
-      return deletedTail;
-    }
-
-    const previousNode = this.lookup(this.length - 2);
-    const currentNode = previousNode.next;
-    previousNode.next = null;
-    this.tail = previousNode;
-    this.length--;
-    return currentNode;
-  };
-
-  /*Delete a node from the Linked-List.*/
+  // Delete's a node from the linked list (at a specific index).
   delete = (index) => {
-    if (index === undefined) {
-      throw new Error("index cannot be undefined!");
+    if (this.isEmpty()) {
+      return null;
     }
-    if (index > this.length || index < 0) {
-      throw new Error("index out of bound!");
-    }
+    if (index === undefined)
+      throw Error("Function requires 'index' as an argument!");
+    if (index < 0 || index >= this.length)
+      throw Error("Index is out of range!");
     if (index === 0) {
       return this.deleteHead();
     }
     if (index === this.length - 1) {
       return this.deleteTail();
     }
-
     const previousNode = this.lookup(index - 1);
-    const currentNode = previousNode.next;
-    const nextNode = currentNode.next;
+    const deletedNode = previousNode.next;
+    const nextNode = deletedNode.next;
     previousNode.next = nextNode;
-    this.length--;
-    return currentNode;
+    return deletedNode;
   };
 
-  /* Trverse to a particular node in Linked-List.*/
-  lookup = (index) => {
-    let counter = 0;
-    let currentNode = this.head;
-
-    if (index < 0 || index > this.length) {
-      throw Error("index is out of bound!");
+  // Delete the current head node of the linked list.
+  deleteHead = () => {
+    if (this.isEmpty()) {
+      return null;
     }
+    const deletedHead = this.head;
+    if (this.head === this.tail) {
+      this.head = null;
+      this.tail = null;
+      this.length--;
+      return deletedHead;
+    }
+    const nextNode = deletedHead.next;
+    this.head = nextNode;
+    return deletedHead;
+  };
 
-    while (counter !== index) {
+  // Delete the current tail node of the linked list.
+  deleteTail = () => {
+    if (this.isEmpty()) {
+      return null;
+    }
+    const deletedTail = this.tail;
+    if (this.head === this.tail) {
+      this.head = null;
+      this.tail = null;
+      this.length--;
+      return deletedTail;
+    }
+    const previousNode = this.lookup(this.length - 2);
+    previousNode.next = null;
+    this.tail = previousNode;
+    this.length--;
+    return deletedTail;
+  };
+
+  // Traverse to a linked list node at a spcific index.
+  lookup = (index) => {
+    if (index < 0 || index >= this.length)
+      throw Error("Index is out of range!");
+    if (index === undefined)
+      throw Error("Function requries 'index' as an argument");
+    let currentNode = this.head;
+    let counter = 0;
+    while (currentNode && counter !== index) {
       currentNode = currentNode.next;
       counter++;
     }
     return currentNode;
   };
 
-  /* Find a value if present in a LinkedList*/
-  find = (value = undefined) => {
+  // Converts a linked list to an array
+  toArray = () => {
     let currentNode = this.head;
+    const linkedListArray = [];
     while (currentNode) {
-      if (value && currentNode.value === value) {
-        return currentNode;
-      }
+      linkedListArray.push(currentNode.value);
       currentNode = currentNode.next;
     }
-    return undefined;
+    return linkedListArray;
   };
 
+  // Reverse the linked list.
   reverse = () => {
-    if (!this.head.next || this.length === 1) {
-      return this;
+    let previousNode = this.head;
+    let currentNode = previousNode.next;
+
+    while (currentNode) {
+      let nextNode = currentNode.next;
+      currentNode.next = previousNode;
+      previousNode = currentNode;
+      currentNode = nextNode;
     }
-    let firstNode = this.head;
-    let secondNode = firstNode.next;
-    while (secondNode) {
-      let tempNode = secondNode.next;
-      secondNode.next = firstNode;
-      // next pair of nodes that needs to be reveresd (second & second.next).
-      firstNode = secondNode;
-      secondNode = tempNode;
-    }
-    // pointing the current head nodes next value to be null.
-    this.head.next = null;
-    // setting the current head node to be the tail node.
+
     this.tail = this.head;
-    // last processed node will be the head node.
-    this.head = firstNode;
+    this.head.next = null;
+    this.head = previousNode;
     return this;
   };
 
-  /* Converts Linked-List nodes into an array.*/
-  toArray = () => {
-    const nodes = new Array();
+  // Reverse without mutating.
+  reverseNm = () => {
+    if (this.isEmpty()) {
+      return null;
+    }
+    if (this.head === this.tail) {
+      return this.head;
+    }
+    const reversedStack = [];
     let currentNode = this.head;
     while (currentNode) {
-      nodes.push(currentNode);
+      reversedStack.push(currentNode.value);
       currentNode = currentNode.next;
     }
-    return nodes;
+
+    const reversedLinkedList = new LinkedList();
+    while (reversedStack.length > 0) {
+      let value = reversedStack.pop();
+      reversedLinkedList.append(value);
+    }
+    return reversedLinkedList;
   };
 
-  /* Printing all nodes in the Linked-List.*/
-  prettyPrint = () => {
-    this.toArray().forEach((node, index) => {
-      console.log(`node at index - ${index} :`, node.toString());
-      if (index === this.length - 1) {
-        console.log("\n");
+  // Find the middle node of the given linked list.
+  middle = (head = this.head) => {
+    if (this.isEmpty()) {
+      return null;
+    }
+    if (this.head === this.tail) {
+      this.head;
+    }
+    let slowPointer = head;
+    let fastPointer = head;
+    while (fastPointer.next && fastPointer.next.next) {
+      slowPointer = slowPointer.next;
+      fastPointer = fastPointer.next.next;
+    }
+    return slowPointer;
+  };
+
+  // Check if linked has cycles.
+  hasCycles = () => {
+    let slowPointer = this.head;
+    let fastPointer = this.head;
+
+    while (fastPointer && fastPointer.next && fastPointer.next.next) {
+      slowPointer = slowPointer.next;
+      fastPointer = fastPointer.next.next;
+      if (slowPointer === fastPointer) {
+        return true;
       }
-    });
+    }
+    return false;
+  };
+
+  // Sort the linked list.
+
+  sort = () => {
+    let mergedList = new LinkedList();
+    let sortedNodes = this.sortNodes();
+    mergedList.head = sortedNodes;
+    let currentNode = sortedNodes;
+    while (currentNode) {
+      currentNode = currentNode.next;
+    }
+    mergedList.tail = currentNode;
+    return mergedList;
+  };
+
+  sortNodes = (head = this.head) => {
+    if (head.next === null) return head;
+    let middle = this.middle(head);
+    let middleNext = middle.next;
+    middle.next = null;
+    let left = this.sortNodes(head);
+    let right = this.sortNodes(middleNext);
+    return this.mergeNodes(left, right);
+  };
+
+  mergeNodes = (left, right) => {
+    let result = null;
+
+    if (left === null) {
+      return right;
+    }
+
+    if (right === null) {
+      return left;
+    }
+
+    if (left.value <= right.value) {
+      result = left;
+      result.next = this.mergeNodes(left.next, right);
+    } else {
+      result = right;
+      result.next = this.mergeNodes(left, right.next);
+    }
+    return result;
+  };
+
+  // prints out the linked list elements.
+  prettyPrint = () => {
+    return this.toArray().join(" --> ");
   };
 };
