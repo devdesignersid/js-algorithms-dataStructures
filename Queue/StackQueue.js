@@ -1,6 +1,6 @@
 /*Implementation of queue using stacks*/
 
-module.exports = class Queue {
+module.exports = class StackQueue {
   constructor() {
     this.stackOne = [];
     this.stackTwo = [];
